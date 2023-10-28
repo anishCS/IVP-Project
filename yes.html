@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+ 
+<head>
+<title>Parking Management System</title>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+ 
+        h1 {
+            background-color: #000;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            margin: 0;
+        }
+ 
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+ 
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+ 
+        th {
+            background-color: #000;
+            color: #fff;
+        }
+ 
+        tr:nth-child(even) {
+            background-color: #f4f4f4;
+        }
+ 
+        div {
+            text-align: center;
+            margin: 20px 0;
+        }
+ 
+        input[type="text"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+ 
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #000;
+            color: #fff;
+            cursor: pointer;
+        }
+ 
+        .parking-fee {
+            background-color: #000;
+            color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 20px auto;
+            text-align: center;
+            width: fit-content;
+        }
+</style>
+</head>
+ 
+<body>
+<h1>Parking Management System</h1>
+<table id="intable">
+        <thead>
+          <tr>
+            <th>Index</th>
+            <th>License Plate Number</th>
+            <th>In Time</th>
+            <th>Out Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <script>
+            var data = [
+              {
+                LicensePlateNumber: "MH16XB1234",
+                InTime: "2023-10-26T10:00:00",
+                OutTime: "", // Add OutTime variable
+              },
+              {
+                LicensePlateNumber: "MH02AY8261",
+                InTime: "2023-10-21T12:30:00",
+                OutTime: "", // Add OutTime variable
+              },
+              {
+                LicensePlateNumber: "MH24AH5678",
+                InTime: "2023-10-20T09:15:00",
+                OutTime: "", // Add OutTime variable
+              },
+              {
+                LicensePlateNumber: "MH47AB2468",
+                InTime: "2023-10-26T14:20:00",
+                OutTime: "", // Add OutTime variable
+              },
+              {
+                LicensePlateNumber: "MH21AY6472",
+                InTime: "2023-10-27T01:45:00",
+                OutTime: "", // Add OutTime variable
+              },
+            ];
+  
+            for (let i = 0; i < data.length; i++) {
+              document.write(
+                `<tr>
+               <td>${i}</td>
+               <td id="licensePlate${i}">${data[i].LicensePlateNumber}</td>
+               <td id="inTime${i}">${data[i].InTime}</td>
+               <td id="outTime${i}">${data[i].OutTime}</td>
+             </tr>`
+              );
+            }
+          </script>
+        </tbody>
+  </table>
+<div>
+<input type="text" id="indexInput" placeholder="Enter Index" />
+<button id="calculateFees">Calculate Parking Fees</button>
+</div>
+<div id="parking-fee" class="parking-fee"></div>
+<script>
+      // JavaScript code to monitor JSON file updates
+      function checkForUpdates() {
+        // Make an AJAX request to check for updates in the JSON file
+        fetch("ok.json")
+          .then((response) => response.json())
+          .then((jsonData) => {
+            // Iterate through the received data array
+            jsonData.forEach((newdata) => {
+              if (newdata.plate && newdata.datetime) {
+                for (let i = 0; i < data.length; i++) {
+                  if (data[i].LicensePlateNumber === newdata.plate) {
+                    // Update the OutTime variable
+                    data[i].OutTime = newdata.datetime;
+
+                    // Find the corresponding row in the table
+                    const table = document.getElementById("intable");
+                    const row = table.rows[i + 1]; // +1 to account for the header row
+
+                    // Add the new datetime value to the row
+                    const cell = row.cells[3]; // 4th cell (0-indexed) for OutTime
+                    cell.textContent = newdata.datetime;
+                  }
+                }
+              }
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching JSON data:", error);
+          });
+
+        // Set a timer to check for updates periodically
+        setTimeout(checkForUpdates, 1000); // Check every 1 second (adjust as needed)
+      }
+
+      // Function to calculate parking fees
+    
+
+      // Event listener for the "Calculate Parking Fees" button
+      document.getElementById("calculateFees").addEventListener("click", () => {
+        const indexInput = document.getElementById("indexInput").value;
+        const index = parseInt(indexInput, 10);
+
+        if (!isNaN(index)) {
+          calculateFees(index);
+        } else {
+          alert("Please enter a valid index.");
+        }
+      });
+
+      checkForUpdates();
+        function calculateFees(index) {
+            function calculateFees(index) {
+        if (!data || data.length === 0 || index < 0 || index >= data.length) {
+          alert("Invalid index or no data available for the specified index.");
+          return;
+        }
+
+        const inTime = new Date(data[index].InTime);
+        const outTime = new Date(data[index].OutTime);
+
+        // Calculate fees
+        const duration = Math.floor((outTime - inTime) / 1000 / 60 / 60);
+        let parkingFee;
+
+        if (duration <= 1) {
+          parkingFee = 10;
+        } else if (duration <= 2) {
+          parkingFee = 20;
+        } else if (duration <= 3) {
+          parkingFee = 30;
+        } else if (duration <= 4) {
+          parkingFee = 40;
+        } else if (duration <= 5) {
+          parkingFee = 50;
+        } else {
+          parkingFee = 80;
+        }
+
+        const parkingFeeDiv = document.getElementById("parking-fee");
+        parkingFeeDiv.textContent = `Parking Fees for index ${index}: $${parkingFee}`;      }
+
+      // Event listener for the "Calculate Parking Fees" button
+      document.getElementById("calculateFees").addEventListener("click", () => {
+        const indexInput = document.getElementById("indexInput").value;
+        const index = parseInt(indexInput, 10);
+
+        if (!isNaN(index)) {
+          calculateFees(index);
+        } else {
+          alert("Please enter a valid index.");
+        }
+      });
+
+      // Start checking for updates when the page loads
+      checkForUpdates();      }
+           
+            
+    
+</script>
+</body>
+ 
+</html>
